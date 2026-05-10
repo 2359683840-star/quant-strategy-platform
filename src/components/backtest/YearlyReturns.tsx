@@ -21,7 +21,7 @@ export function YearlyReturns({ data }: { data: YearlyReturn[] }) {
             <Tooltip
               contentStyle={{ background: "#131720", border: "1px solid #21262d", borderRadius: "8px", fontSize: "12px" }}
               labelStyle={{ color: "#e6edf3" }}
-              formatter={(value: number) => [`${value > 0 ? "+" : ""}${value}%`, ""]}
+              formatter={(value: number | string) => [`${Number(value) > 0 ? "+" : ""}${value}%`, ""]}
             />
             <ReferenceLine y={0} stroke="#30363d" />
             <Bar dataKey="return" radius={[3, 3, 0, 0]} barSize={32}>
