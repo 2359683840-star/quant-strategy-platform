@@ -9,7 +9,7 @@ export interface StrategyNode {
 }
 
 export interface StrategyEdge {
-  id: string;
+  id?: string;
   source: string;
   target: string;
   sourceHandle?: string;
