@@ -57,7 +57,7 @@ export default function EditorPage() {
         x: 100 + Math.random() * 300,
         y: 100 + Math.random() * 300,
       },
-      data: { ...n, onSelect: () => store.getState().selectNode(n.id) },
+      data: { ...n },
     }));
     setRfNodes(rfn);
   }, [nodes, setRfNodes]);

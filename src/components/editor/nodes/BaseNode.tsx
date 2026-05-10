@@ -4,7 +4,7 @@ import { CATEGORY_COLORS, CATEGORY_BG } from "@/lib/constants";
 import type { NodeCategory, StrategyNode } from "@/lib/types";
 
 export const BaseNode = memo(({ data, selected }: NodeProps) => {
-  const nodeData = data as unknown as StrategyNode & { onSelect?: () => void };
+  const nodeData = data as unknown as StrategyNode;
   const color = CATEGORY_COLORS[nodeData.type] ?? "#6b7280";
   const bg = CATEGORY_BG[nodeData.type] ?? "rgba(107,114,128,0.1)";
 
