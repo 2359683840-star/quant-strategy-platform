@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { createChart, type IChartApi, type ISeriesApi, type LineData, ColorType } from "lightweight-charts";
+import { createChart, AreaSeries, ColorType, type IChartApi } from "lightweight-charts";
 
 interface Props {
   data: { date: string; value: number }[];
-  drawdownData?: { date: string; value: number }[];
 }
 
-export function EquityCurveChart({ data, drawdownData }: Props) {
+export function EquityCurveChart({ data }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const chart = useRef<IChartApi | null>(null);
 
@@ -29,17 +28,17 @@ export function EquityCurveChart({ data, drawdownData }: Props) {
       timeScale: { borderColor: "#30363d", timeVisible: true },
     });
 
-    const lineData: LineData[] = data.map((d) => ({
-      time: d.date,
-      value: d.value,
-    }));
-
-    const series = c.addAreaSeries({
+    const series = c.addSeries(AreaSeries, {
       lineColor: "#3dd68c",
       topColor: "rgba(61,214,140,0.25)",
       bottomColor: "rgba(61,214,140,0.02)",
       lineWidth: 2,
     });
+
+    const lineData = data.map((d) => ({
+      time: d.date,
+      value: d.value,
+    }));
     series.setData(lineData);
     c.timeScale().fitContent();
 
