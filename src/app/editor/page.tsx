@@ -64,14 +64,14 @@ export default function EditorPage() {
 
   useEffect(() => {
     const rfe: Edge[] = edgesStore.map((e) => ({
-      id: e.id,
+      id: e.id ?? `e_${e.source}_${e.target}`,
       source: e.source,
       target: e.target,
-      sourceHandle: e.sourceHandle,
-      targetHandle: e.targetHandle,
+      sourceHandle: e.sourceHandle ?? undefined,
+      targetHandle: e.targetHandle ?? undefined,
       animated: true,
       style: { stroke: "#3dd68c88", strokeWidth: 2 },
-    }));
+    } as Edge));
     setRfEdges(rfe);
   }, [edgesStore, setRfEdges]);
 
