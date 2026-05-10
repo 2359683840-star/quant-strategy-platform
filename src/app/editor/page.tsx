@@ -10,11 +10,9 @@ import {
   BackgroundVariant,
   useNodesState,
   useEdgesState,
-  addEdge,
   type Connection,
   type Node,
   type Edge,
-  type OnConnectEnd,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -46,8 +44,8 @@ export default function EditorPage() {
   const setBacktesting = useEditorStore((s) => s.setBacktesting);
   const setBacktestResult = useEditorStore((s) => s.setBacktestResult);
 
-  const [rfNodes, setRfNodes, onNodesChange] = useNodesState([]);
-  const [rfEdges, setRfEdges, onEdgesChange] = useEdgesState([]);
+  const [rfNodes, setRfNodes, onNodesChange] = useNodesState<Node>([]);
+  const [rfEdges, setRfEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
   // Sync Zustand → ReactFlow
