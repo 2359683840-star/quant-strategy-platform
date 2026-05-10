@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sidebar: var(--sidebar);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-buy: var(--buy);
+  --color-sell: var(--sell);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #06080c;
+  --foreground: #e6edf3;
+  --sidebar: #0b0d14;
+  --surface: #131720;
+  --border: #21262d;
+  --accent: #3dd68c;
+  --buy: #10b981;
+  --sell: #ef4444;
+  --muted: #8b949e;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* ReactFlow overrides */
+.react-flow__node {
+  font-size: 12px;
+}
+
+.react-flow__edge-path {
+  stroke: #3dd68c88;
+  stroke-width: 2;
+}
+
+.react-flow__controls button {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--foreground) !important;
+  fill: var(--foreground) !important;
+}
+
+.react-flow__background {
+  background: var(--background) !important;
+}
+
+.react-flow__minimap {
+  background: var(--surface) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
