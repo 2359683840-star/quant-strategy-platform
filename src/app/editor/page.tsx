@@ -250,7 +250,7 @@ export default function EditorPage() {
               className="!bg-[var(--surface)] !border-[var(--border)] !rounded-lg"
               maskColor="rgba(0,0,0,0.8)"
               nodeColor={(node) => {
-                const data = node.data as StrategyNode | undefined;
+                const data = node.data as unknown as StrategyNode | undefined;
                 return data ? CATEGORY_COLORS[data.type] ?? "#6b7280" : "#6b7280";
               }}
             />
