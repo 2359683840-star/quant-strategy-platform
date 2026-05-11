@@ -137,10 +137,23 @@ def compile_signals(df: pd.DataFrame, nodes: list[StrategyNode], edges: list) ->
                 series_store[f"{nid}_lower"] = lower
 
         elif node.type == NodeType.SIGNAL:
-            # Find predecessor series
-            inputs = [e.source for e in edges if e.target == nid]
-            a = series_store.get(inputs[0] if len(inputs) > 0 else "close", df["Close"])
-            b = series_store.get(inputs[1] if len(inputs) > 1 else "close", df["Close"])
+            # Find predecessor series by handle ID: A=fast/upper, B=slow/lower
+            a_input = None
+            b_input = None
+            for e in edges:
+                if e.target == nid:
+                    if e.target_handle == "a":
+                        a_input = e.source
+                    elif e.target_handle == "b":
+                        b_input = e.source
+                    else:
+                        # Fallback: first unmatched goes to a, second to b
+                        if a_input is None:
+                            a_input = e.source
+                        else:
+                            b_input = e.source
+            a = series_store.get(a_input if a_input else "close", df["Close"])
+            b = series_store.get(b_input if b_input else "close", df["Close"])
             label_lower = node.label.lower()
 
             if "cross above" in label_lower:
