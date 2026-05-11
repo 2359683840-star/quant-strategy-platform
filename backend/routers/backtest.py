@@ -16,21 +16,49 @@ from ..models import (
 router = APIRouter(tags=["backtest"])
 
 
-def fetch_data(symbol: str, start: str, end: str, timeframe: str) -> pd.DataFrame:
-    """Fetch OHLCV data from Yahoo Finance."""
+def fetch_data(symbol: str, start: str, end: str, timeframe: str, source: str = "yfinance") -> pd.DataFrame:
+    """Fetch OHLCV data from Yahoo Finance or AkShare."""
+    if source == "akshare":
+        return _fetch_akshare(symbol, start, end)
+    return _fetch_yfinance(symbol, start, end, timeframe)
+
+
+def _fetch_yfinance(symbol: str, start: str, end: str, timeframe: str) -> pd.DataFrame:
     interval_map = {"1m": "1m", "5m": "5m", "1h": "1h", "1d": "1d", "1wk": "1wk"}
     interval = interval_map.get(timeframe, "1d")
-
     df = yf.download(symbol, start=start, end=end, interval=interval, progress=False)
-
     if df.empty:
         raise HTTPException(status_code=400, detail=f"No data for {symbol} ({start} to {end})")
-
-    # Flatten multi-level columns
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.get_level_values(0)
-
     return df
+
+
+def _fetch_akshare(symbol: str, start: str, end: str) -> pd.DataFrame:
+    """Fetch A-share stock data via AkShare."""
+    try:
+        import akshare as ak
+    except ImportError:
+        raise HTTPException(status_code=500, detail="AkShare not installed. Run: pip install akshare")
+
+    clean = symbol.replace(".SS", "").replace(".SZ", "")
+    try:
+        df = ak.stock_zh_a_hist(symbol=clean, period="daily", start_date=start.replace("-", ""), end_date=end.replace("-", ""), adjust="qfq")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"AkShare fetch failed for {symbol}: {e}")
+
+    if df is None or df.empty:
+        raise HTTPException(status_code=400, detail=f"No A-share data for {symbol}")
+
+    df = df.rename(columns={
+        "日期": "Date", "开盘": "Open", "收盘": "Close",
+        "最高": "High", "最低": "Low", "成交量": "Volume",
+    })
+    df["Date"] = pd.to_datetime(df["Date"])
+    df = df.set_index("Date").sort_index()
+    for col in ["Open", "High", "Low", "Close", "Volume"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df[start:end]
 
 
 # ── Indicator computation ──
@@ -348,7 +376,7 @@ def generate_insights(metrics: RiskMetrics, yearly: list[YearlyReturn], trades: 
 @router.post("/backtest", response_model=BacktestResult)
 def run_backtest(config: StrategyConfig):
     # 1. Fetch data
-    df = fetch_data(config.symbol, config.start_date, config.end_date, config.timeframe)
+    df = fetch_data(config.symbol, config.start_date, config.end_date, config.timeframe, config.data_source)
 
     # 2. Compile signals from graph
     signals = compile_signals(df, config.nodes, config.edges)

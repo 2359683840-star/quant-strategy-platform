@@ -12,6 +12,7 @@ interface EditorState {
   timeframe: string;
   startDate: string;
   endDate: string;
+  dataSource: string;
   isBacktesting: boolean;
   backtestResult: BacktestResult | null;
 
@@ -22,7 +23,7 @@ interface EditorState {
   addEdge: (edge: StrategyEdge) => void;
   removeEdge: (id: string) => void;
   selectNode: (id: string | null) => void;
-  setStrategyMeta: (meta: Partial<Pick<EditorState, "strategyName" | "strategyDescription" | "symbol" | "timeframe" | "startDate" | "endDate">>) => void;
+  setStrategyMeta: (meta: Partial<Pick<EditorState, "strategyName" | "strategyDescription" | "symbol" | "timeframe" | "startDate" | "endDate" | "dataSource">>) => void;
   setBacktesting: (v: boolean) => void;
   setBacktestResult: (r: BacktestResult | null) => void;
   getStrategyConfig: () => StrategyConfig;
@@ -46,6 +47,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   timeframe: "1d",
   startDate: "2020-01-01",
   endDate: "2024-12-31",
+  dataSource: "yfinance",
   isBacktesting: false,
   backtestResult: null,
 
@@ -109,6 +111,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       timeframe: s.timeframe,
       startDate: s.startDate,
       endDate: s.endDate,
+      dataSource: s.dataSource,
       nodes: s.nodes,
       edges: s.edges,
     };
@@ -122,6 +125,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       timeframe: config.timeframe,
       startDate: config.startDate,
       endDate: config.endDate,
+      dataSource: (config as Record<string, unknown>).dataSource as string ?? "yfinance",
       nodes: config.nodes,
       edges: config.edges,
       nodePositions: {},
@@ -137,6 +141,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       selectedNodeId: null,
       strategyName: "",
       strategyDescription: "",
+      dataSource: "yfinance",
       isBacktesting: false,
       backtestResult: null,
     }),

@@ -40,6 +40,9 @@ export default function EditorPage() {
   const setStrategyMeta = useEditorStore((s) => s.setStrategyMeta);
   const symbol = useEditorStore((s) => s.symbol);
   const timeframe = useEditorStore((s) => s.timeframe);
+  const startDate = useEditorStore((s) => s.startDate);
+  const endDate = useEditorStore((s) => s.endDate);
+  const dataSource = useEditorStore((s) => s.dataSource);
   const isBacktesting = useEditorStore((s) => s.isBacktesting);
   const setBacktesting = useEditorStore((s) => s.setBacktesting);
   const setBacktestResult = useEditorStore((s) => s.setBacktestResult);
@@ -186,6 +189,16 @@ export default function EditorPage() {
               focus:outline-none border-b border-transparent focus:border-[var(--accent)] px-1 w-48 transition-colors"
           />
           <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
+            <select
+              value={dataSource}
+              onChange={(e) => setStrategyMeta({ dataSource: e.target.value })}
+              className="bg-[var(--surface)] border border-[var(--border)] rounded-md px-2 py-1
+                text-xs text-[var(--foreground)] focus:outline-none focus:border-[var(--accent)]"
+              title="Data source"
+            >
+              <option value="yfinance">Yahoo Finance</option>
+              <option value="akshare">AkShare (A股)</option>
+            </select>
             <input
               value={symbol}
               onChange={(e) => setStrategyMeta({ symbol: e.target.value })}
@@ -205,6 +218,22 @@ export default function EditorPage() {
               <option value="1d">1d</option>
               <option value="1wk">1wk</option>
             </select>
+            <span className="text-[10px]">From</span>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStrategyMeta({ startDate: e.target.value })}
+              className="bg-[var(--surface)] border border-[var(--border)] rounded-md px-2 py-1
+                text-xs text-[var(--foreground)] focus:outline-none focus:border-[var(--accent)]"
+            />
+            <span className="text-[10px]">To</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setStrategyMeta({ endDate: e.target.value })}
+              className="bg-[var(--surface)] border border-[var(--border)] rounded-md px-2 py-1
+                text-xs text-[var(--foreground)] focus:outline-none focus:border-[var(--accent)]"
+            />
           </div>
         </div>
         <div className="flex items-center gap-2">

@@ -40,6 +40,7 @@ class StrategyConfig(BaseModel):
     timeframe: str = "1d"
     start_date: str
     end_date: str
+    data_source: str = "yfinance"
     nodes: list[StrategyNode]
     edges: list[StrategyEdge]
 

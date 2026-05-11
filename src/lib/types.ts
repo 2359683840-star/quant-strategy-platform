@@ -24,6 +24,7 @@ export interface StrategyConfig {
   timeframe: string;
   startDate: string;
   endDate: string;
+  dataSource?: string;
   nodes: StrategyNode[];
   edges: StrategyEdge[];
 }

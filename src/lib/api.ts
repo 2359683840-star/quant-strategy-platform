@@ -13,6 +13,7 @@ export async function runBacktest(config: StrategyConfig): Promise<BacktestResul
       timeframe: config.timeframe,
       start_date: config.startDate,
       end_date: config.endDate,
+      data_source: config.dataSource ?? "yfinance",
       nodes: config.nodes.map((n) => ({
         id: n.id,
         type: n.type,
