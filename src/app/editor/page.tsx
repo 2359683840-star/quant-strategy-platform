@@ -43,19 +43,36 @@ export default function EditorPage() {
   const isBacktesting = useEditorStore((s) => s.isBacktesting);
   const setBacktesting = useEditorStore((s) => s.setBacktesting);
   const setBacktestResult = useEditorStore((s) => s.setBacktestResult);
+  const nodePositions = useEditorStore((s) => s.nodePositions);
+  const updateNodePositions = useEditorStore((s) => s.updateNodePositions);
 
-  const [rfNodes, setRfNodes, onNodesChange] = useNodesState<Node>([]);
-  const [rfEdges, setRfEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const [rfNodes, setRfNodes, onNodesChangeRaw] = useNodesState<Node>([]);
+  const [rfEdges, setRfEdges, onEdgesChangeRaw] = useEdgesState<Edge>([]);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+
+  // Sync ReactFlow position changes back to Zustand
+  const onNodesChange: typeof onNodesChangeRaw = useCallback((changes) => {
+    onNodesChangeRaw(changes);
+    const posUpdates: Record<string, { x: number; y: number }> = {};
+    for (const c of changes) {
+      if (c.type === "position" && c.position) {
+        posUpdates[c.id] = { x: c.position.x, y: c.position.y };
+      }
+    }
+    if (Object.keys(posUpdates).length > 0) {
+      store.getState().updateNodePositions(posUpdates);
+    }
+  }, [onNodesChangeRaw]);
 
   // Sync Zustand → ReactFlow
   useEffect(() => {
+    const positions = store.getState().nodePositions;
     const rfn: Node[] = nodes.map((n) => ({
       id: n.id,
       type: "base",
-      position: (n as unknown as { position?: { x: number; y: number } }).position ?? {
-        x: 100 + Math.random() * 300,
-        y: 100 + Math.random() * 300,
+      position: positions[n.id] ?? {
+        x: 80 + (nodes.indexOf(n) % 3) * 260,
+        y: 80 + Math.floor(nodes.indexOf(n) / 3) * 150,
       },
       data: { ...n },
     }));
@@ -108,14 +125,7 @@ export default function EditorPage() {
         : { x: e.clientX - 400, y: e.clientY - 200 };
 
       const params = paramsStr ? JSON.parse(paramsStr) : {};
-      const node: StrategyNode & { position?: { x: number; y: number } } = {
-        id: `node_${Date.now()}`,
-        type,
-        label,
-        params,
-        position,
-      };
-      addNode(node);
+      addNode({ id: `node_${Date.now()}`, type, label, params }, position);
     },
     [addNode]
   );
@@ -231,7 +241,7 @@ export default function EditorPage() {
             nodes={rfNodes}
             edges={rfEdges}
             onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
+            onEdgesChange={onEdgesChangeRaw}
             onConnect={onConnect}
             onDragOver={onDragOver}
             onDrop={onDrop}

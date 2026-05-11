@@ -4,6 +4,7 @@ import type { StrategyNode, StrategyEdge, StrategyConfig, BacktestResult } from 
 interface EditorState {
   nodes: StrategyNode[];
   edges: StrategyEdge[];
+  nodePositions: Record<string, { x: number; y: number }>;
   selectedNodeId: string | null;
   strategyName: string;
   strategyDescription: string;
@@ -14,9 +15,10 @@ interface EditorState {
   isBacktesting: boolean;
   backtestResult: BacktestResult | null;
 
-  addNode: (node: StrategyNode) => void;
+  addNode: (node: StrategyNode, pos?: { x: number; y: number }) => void;
   removeNode: (id: string) => void;
   updateNode: (id: string, params: Record<string, number | string | boolean>) => void;
+  updateNodePositions: (positions: Record<string, { x: number; y: number }>) => void;
   addEdge: (edge: StrategyEdge) => void;
   removeEdge: (id: string) => void;
   selectNode: (id: string | null) => void;
@@ -36,6 +38,7 @@ const nextEdgeId = () => `edge_${++edgeCounter}`;
 export const useEditorStore = create<EditorState>((set, get) => ({
   nodes: [],
   edges: [],
+  nodePositions: {},
   selectedNodeId: null,
   strategyName: "",
   strategyDescription: "",
@@ -46,20 +49,37 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   isBacktesting: false,
   backtestResult: null,
 
-  addNode: (node) =>
-    set((s) => ({ nodes: [...s.nodes, { ...node, id: node.id || nextId() }] })),
+  addNode: (node, pos) =>
+    set((s) => {
+      const id = node.id || nextId();
+      const p = pos || {
+        x: 100 + Math.random() * 300,
+        y: 100 + Math.random() * 300,
+      };
+      return {
+        nodes: [...s.nodes, { ...node, id }],
+        nodePositions: { ...s.nodePositions, [id]: p },
+      };
+    }),
 
   removeNode: (id) =>
-    set((s) => ({
-      nodes: s.nodes.filter((n) => n.id !== id),
-      edges: s.edges.filter((e) => e.source !== id && e.target !== id),
-      selectedNodeId: s.selectedNodeId === id ? null : s.selectedNodeId,
-    })),
+    set((s) => {
+      const { [id]: _, ...rest } = s.nodePositions;
+      return {
+        nodes: s.nodes.filter((n) => n.id !== id),
+        edges: s.edges.filter((e) => e.source !== id && e.target !== id),
+        selectedNodeId: s.selectedNodeId === id ? null : s.selectedNodeId,
+        nodePositions: rest,
+      };
+    }),
 
   updateNode: (id, params) =>
     set((s) => ({
       nodes: s.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, ...params } } : n)),
     })),
+
+  updateNodePositions: (positions) =>
+    set((s) => ({ nodePositions: { ...s.nodePositions, ...positions } })),
 
   addEdge: (edge) =>
     set((s) => {
@@ -104,6 +124,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       endDate: config.endDate,
       nodes: config.nodes,
       edges: config.edges,
+      nodePositions: {},
       selectedNodeId: null,
       backtestResult: null,
     }),
@@ -112,6 +133,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     set({
       nodes: [],
       edges: [],
+      nodePositions: {},
       selectedNodeId: null,
       strategyName: "",
       strategyDescription: "",
