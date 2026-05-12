@@ -125,7 +125,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       timeframe: config.timeframe,
       startDate: config.startDate,
       endDate: config.endDate,
-      dataSource: (config as Record<string, unknown>).dataSource as string ?? "yfinance",
+      dataSource: config.dataSource ?? "yfinance",
       nodes: config.nodes,
       edges: config.edges,
       nodePositions: {},
